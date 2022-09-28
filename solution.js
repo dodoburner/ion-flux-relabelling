@@ -1,63 +1,53 @@
-class Node {
-  constructor(label) {
-    this.label = label
+class Converter {
+  constructor() {
+    this.label = null
     this.left = null
     this.right = null
   }
 }
 
-function arrayToTree(arrayOfNodes, i) {
-  if (i >= arrayOfNodes.length) {
+function arrayToTree(converters, i) {
+  if (i >= converters.length) {
     return null
   }
 
-  const node = arrayOfNodes[i]
-  node.left = arrayToTree(arrayOfNodes, 2*i+1)
-  node.right = arrayToTree(arrayOfNodes, 2*i+2)
+  const node = converters[i]
+  node.left = arrayToTree(converters, 2*i+1)
+  node.right = arrayToTree(converters, 2*i+2)
 
   return node
 }
 
-function postOrder(node, arrayOfNumbers) {
-  if (node === null) {
+function postOrder(converter, labels, q, prev = -1) {
+  if (converter === null) {
     return
   }
 
-  node.label = arrayOfNumbers.shift() 	
-  postOrder(node.right, arrayOfNumbers)
-  postOrder(node.left, arrayOfNumbers)
+  converter.label = labels.shift()
+  if (q.includes(converter.label)) {
+    let index = q.indexOf(converter.label)
+    q[index] = prev
+  }
+  postOrder(converter.right, labels, q, converter.label)
+  postOrder(converter.left, labels, q, converter.label)
 
-  return node
+  return q
 }
 
-function solution(h) {
-  let num = h * 2 + 1
-  let arrayOfNodes = []
-  let arrayOfNumbers = []
+function solution(h, q) {
+  let num = Math.pow(2, h) - 1
+  let converters = []
+  let labels = []
   while (num > 0) {
-    const node = new Node()
-    arrayOfNodes.push(node)
-    arrayOfNumbers.push(num)
+    const converter = new Converter()
+    converters.push(converter)
+    labels.push(num)
     num--
   }
 
-  const tree = arrayToTree(arrayOfNodes, 0)
-  return postOrder(tree, arrayOfNumbers)
+  const tree = arrayToTree(converters, 0)
+  return postOrder(tree, labels, q)
 }
 
-
-console.log(solution(3))
-
-
-// function arrToTree(arrayOfNumbers) {
-//   if (arrayOfNumbers.length === 0) {
-//     return
-//   }
-
-//   const label = arrayOfNumbers.shift()
-//   node = new Node(label)
-//   node.right = (arrToTree(arrayOfNumbers))
-//   node.left = (arrToTree(arrayOfNumbers))
-
-//   return node
-// }
+console.log(solution(3, [7, 3, 5, 1]));
+console.log(solution(5, [19, 14, 28]));
